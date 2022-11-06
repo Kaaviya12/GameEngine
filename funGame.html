@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="UTF-8">
+        <title>Fun Game</title>
+        <script type="text/javascript" src="gameEngine.js"></script>
+        <script type="text/javascript">
+            var scene;
+
+            function init(){
+                console.log("Hello, welcome to fun game!");
+                scene = new Scene();
+                bear = new Sprite("bear.png", 100, 100);
+                timer = new Timer();
+                timeElapsed = document.getElementById("timeElapsed");
+                scene.setSize(1400, 600);
+                scene.setBorder(5, "solid", "red");
+                scene.setBackgroundColor("purple");
+                scene.setBackgroundImage("NightForest.jpg");
+                timer.start();
+                scene.start();
+            }
+
+            function update(){
+                timeElapsed.innerHTML = "Time: " + timer.getElapsedTime();
+                scene.clear();
+                bear.checkKeys();
+                bear.update();
+            }
+
+            function clearBackground(){
+                scene.stop();
+                scene.resetBackground();
+            }
+
+            function stop(){
+                scene.stop();
+            }
+
+            
+            function resume(){
+                scene.resume();
+            }
+
+            function bounce(){
+                bear.setBoundAction("BOUNCE");
+            }
+
+            function stopAct(){
+                bear.setBoundAction("STOP");
+            }
+
+            function die(){
+                bear.setBoundAction("DIE");
+            }
+
+
+        </script>
+    </head>
+    <body onload="init()">
+        <p id="timeElapsed"></p>
+        <br>
+        <canvas id="canvas"
+                width="1200"
+                height="600">
+                <p>Your browser does not support the canvas tag</p>
+        </canvas>
+        <br>
+        <button type="button"
+                id="clearBackground"
+                onclick="clearBackground()">Clear Background</button>
+        <br>
+        <button type="button"
+                id="stop"
+                onclick="stop()">Stop</button>
+        <br>
+        <button type="button"
+                id="resume"
+                onclick="resume()">Resume</button>
+        <br>
+        <button type="button"
+                id="bounce"
+                onclick="bounce()">Bounce</button>
+        <br>
+        <button type="button"
+                id="stopAct"
+                onclick="stopAct()">StopAction</button>
+        <br>
+        <button type="button"
+                id="die"
+                onclick="die()">Die</button>
+        
+    </body>
+</html>
