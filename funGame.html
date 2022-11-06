@@ -11,46 +11,84 @@
                 console.log("Hello, welcome to fun game!");
                 scene = new Scene();
                 bear = new Sprite("bear.png", 100, 100);
+                timer = new Timer();
+                timeElapsed = document.getElementById("timeElapsed");
                 scene.setSize(1400, 600);
                 scene.setBorder(5, "solid", "red");
                 scene.setBackgroundColor("purple");
                 scene.setBackgroundImage("NightForest.jpg");
+                timer.start();
                 scene.start();
             }
 
             function update(){
+                timeElapsed.innerHTML = "Time: " + timer.getElapsedTime();
                 scene.clear();
                 bear.checkKeys();
                 bear.update();
-                //bear.draw();
             }
 
-            function clearScene(){
-                scene.clear();
-                console.log("Inside clearScene!!");
+            function clearBackground(){
+                scene.stop();
+                scene.resetBackground();
             }
 
-            function Bear(){
-                bear1 = new Sprite("bear.png", 100, 100);
-                //bear1.checkKeys = function(){} 
-                //Any changes needed for specific to a bear can be implemented here      
-                //Maybe increment dx and dy value so bear has faster movement/speed
-                //or checkKeys can be altered so the behavior for a bear is different
+            function stop(){
+                scene.stop();
             }
 
+            
+            function resume(){
+                scene.resume();
+            }
+
+            function bounce(){
+                bear.setBoundAction("BOUNCE");
+            }
+
+            function stopAct(){
+                bear.setBoundAction("STOP");
+            }
+
+            function die(){
+                bear.setBoundAction("DIE");
+            }
 
 
         </script>
     </head>
     <body onload="init()">
+        <p id="timeElapsed"></p>
+        <br>
         <canvas id="canvas"
                 width="1200"
                 height="600">
                 <p>Your browser does not support the canvas tag</p>
         </canvas>
+        <br>
         <button type="button"
-                id="button1"
-                onclick="clearScene()">Clear</button>
-
+                id="clearBackground"
+                onclick="clearBackground()">Clear Background</button>
+        <br>
+        <button type="button"
+                id="stop"
+                onclick="stop()">Stop</button>
+        <br>
+        <button type="button"
+                id="resume"
+                onclick="resume()">Resume</button>
+        <br>
+        <button type="button"
+                id="bounce"
+                onclick="bounce()">Bounce</button>
+        <br>
+        <button type="button"
+                id="stopAct"
+                onclick="stopAct()">StopAction</button>
+        <br>
+        <button type="button"
+                id="die"
+                onclick="die()">Die</button>
+        
     </body>
 </html>

@@ -3,7 +3,7 @@
 */
 
 var keysDown = [];
-
+//Scene is for the game background consisting of a canvas element
 function Scene(){
 
     this.canvas = document.getElementById("canvas");
@@ -70,6 +70,15 @@ function Scene(){
         this.intId = setInterval(callUpdate, 50);
     }
 
+    this.stop = function(){
+        clearInterval(this.intId);
+    }
+
+    this.resume = function(){
+        this.stop();
+        this.intId = setInterval(callUpdate, 50);
+    }
+
     this.show = function(){
         this.canvas.style.display = "block";
     }
@@ -81,7 +90,7 @@ function Scene(){
 
 
 function callUpdate(){
-    update();
+    update();   //Update function should be defined in the specific game by the user
 }
 
 function Sprite(imageurl, width, height){
@@ -99,7 +108,7 @@ function Sprite(imageurl, width, height){
     this.maxdy = 25;
     //this.speed = 5;
     this.isVisible = true;
-    //this.boundAction = "WRAP";
+    this.boundAction = "WRAP";
 
     this.draw = function(){
         this.context.drawImage(this.img, this.x, this.y, this.width, this.height);
@@ -109,15 +118,60 @@ function Sprite(imageurl, width, height){
         this.x += this.dx;
         this.y += this.dy;
         this.checkxyBounds();
-        this.draw();
+        if(this.isVisible){
+            this.draw();
+        }
+    }
+
+    this.setBoundAction = function(boundAct){
+        this.boundAction = boundAct;
     }
 
     this.checkxyBounds = function(){
-        //Below for wrap
-        if(this.x > this.canvas.width){this.x = 0;}
-        if(this.y > this.canvas.height){this.y = 0;}
-        if(this.x < 0){this.x = this.canvas.width;}
-        if(this.y < 0){this.y = this.canvas.height;}
+        //Need to consider sprite width and height. Sprite's origin(x, y) is at the upper left corner of the sprite
+        //Could also change this to use origin at the center of the sprite by utilizing transform method, but I want
+        //to be sure my implementation is different.
+        if(this.boundAction == "WRAP"){
+            if(this.x > this.canvas.width - this.width){this.x = 0;}
+            if(this.y > this.canvas.height - this.height){this.y = 0;}
+            if(this.x < 0){this.x = this.canvas.width - this.width;}
+            if(this.y < 0){this.y = this.canvas.height - this.height;}
+
+        } else if(this.boundAction == "BOUNCE"){
+            if(this.x > this.canvas.width - this.width || this.x < 0){this.dx = this.dx * -1;}
+            if(this.y > this.canvas.height - this.height || this.y < 0){this.dy = this.dy * -1;}
+
+        } else if(this.boundAction == "STOP"){
+            if(this.x > this.canvas.width - this.width){
+                this.x = this.canvas.width - this.width;
+                this.dx = 0;
+            }
+            if(this.y > this.canvas.height - this.height){
+                this.y = this.canvas.height - this.height;
+                this.dy = 0;
+            }
+            if(this.x < 0){
+                this.x = 0;
+                this.dx = 0;
+            }
+            if(this.y < 0){
+                this.y = 0;
+                this.dy = 0;
+            }
+
+        } else if(this.boundAction == "DIE"){
+            if(this.x > this.canvas.width - this.width || this.x < 0 ||
+               this.y > this.canvas.height - this.height || this.y < 0){
+                this.stop();
+                this.hide();
+            }
+        }
+        
+    }
+
+    this.stop = function(){
+        this.dx = 0;
+        this.dy = 0;
     }
 
     this.setmaxdx = function(maxdx){
@@ -150,6 +204,34 @@ function Sprite(imageurl, width, height){
         if(this.dy > this.maxdy){this.dy = this.maxdy;}
         if(this.dx < this.maxdx * -1){this.dx = this.maxdx * -1;}
         if(this.dy < this.maxdy * -1){this.dy = this.maxdy * -1;}
+    }
+
+    this.show = function(){
+        this.isVisible = true;
+    }
+
+    this.hide = function(){
+        this.isVisible = false;
+    }
+}
+
+function Timer(){
+    var elapsedTime = 0;
+
+    this.start = function(){
+        this.date = new Date();
+        this.startTime = this.date.getTime();
+    }
+
+    this.getCurrentTime = function(){
+        this.date = new Date();
+        return this.date.getTime();
+    }
+
+    this.getElapsedTime = function(){
+        this.currentTime = this.getCurrentTime();
+        this.elapsedTime = (this.currentTime - this.startTime) / 1000;
+        return this.elapsedTime;
     }
 }
 
