@@ -104,11 +104,10 @@ function Sprite(imageurl, width, height){
     this.y = 100;
     this.dx = 5;
     this.dy = 0;
-    this.maxdx = 25;
-    this.maxdy = 25;
-    //this.speed = 5;
+    this.maxdx = 15;
+    this.maxdy = 15;
     this.isVisible = true;
-    this.boundAction = "WRAP";
+    this.boundAction = "BOUNCE";
 
     this.draw = function(){
         this.context.drawImage(this.img, this.x, this.y, this.width, this.height);
@@ -169,17 +168,67 @@ function Sprite(imageurl, width, height){
         
     }
 
+    this.hasCollided = function(sprite){
+        if(!this.isVisible || !sprite.isVisible ||
+            this.x > sprite.x + sprite.width || 
+            this.x + this.width < sprite.x || 
+            this.y > sprite.y + sprite.height ||
+            this.y + this.height < sprite.y){
+            return false;
+        } else return true;
+    }
+
     this.stop = function(){
         this.dx = 0;
         this.dy = 0;
     }
 
+    this.setx = function(x){
+        if(x > this.canvas.width - this.width){
+            this.x = this.canvas.width - this.width;
+        } else if(x < 0){
+            this.x = 0;
+        } else this.x = x;
+    }
+
+    this.sety = function(y){
+        if(y > this.canvas.height - this.height){
+            this.x = this.canvas.height - this.height;
+        } else if(y < 0){
+            this.y = 0;
+        } else this.y = y;
+    }
+
+    this.setdx = function(dx){
+        if(dx > this.canvas.width - this.width){
+            this.dx = this.canvas.width - this.width;
+        } else if(dx < (this.canvas.width - this.width) * -1){
+            this.dx = (this.canvas.width - this.width) * -1;
+        } else this.dx = dx;
+    }
+
+    this.setdy = function(dy){
+        if(dy > this.canvas.height - this.height){
+            this.dy = this.canvas.height - this.height;
+        } else if(dy < (this.canvas.height - this.height) * -1){
+            this.dy = (this.canvas.height - this.height) * -1;
+        } else this.dy = dy;
+    }
+
     this.setmaxdx = function(maxdx){
-        this.maxdx = maxdx;
+        if(maxdx > this.canvas.width - this.width){
+            this.maxdx = this.canvas.width - this.width;
+        } else if(maxdx < 0){
+            this.maxdx = 0;
+        } else this.maxdx = maxdx;
     }
 
     this.setmaxdy = function(maxdy){
-        this.maxdy = maxdy;
+        if(maxdy > this.canvas.height - this.height){
+            this.maxdy = this.canvas.height - this.height;
+        } else if(maxdy < 0){
+            this.maxdy = 0;
+        } else this.maxdy = maxdy;
     }
 
     
@@ -216,11 +265,32 @@ function Sprite(imageurl, width, height){
 }
 
 function Timer(){
-    var elapsedTime = 0;
+    this.elapsedTime = 0;
+    this.idleTime;
+    this.pauseClicked = false;
 
     this.start = function(){
         this.date = new Date();
         this.startTime = this.date.getTime();
+
+        //Initialize the idleTime variable to 0 milliseconds, since when we begin the timer we won't have any time spent idle
+        this.tempDate = new Date();
+        this.idleTime = this.tempDate.getTime() - this.tempDate.getTime();
+    }
+
+    this.pause = function(){
+        if(this.pauseClicked == false){
+            this.pauseTime = this.getCurrentTime();
+            this.pauseClicked = true;
+        }
+    }
+
+    this.resume = function(){
+        if(this.pauseClicked == true){
+            this.resumeTime = this.getCurrentTime();
+            this.idleTime += this.resumeTime - this.pauseTime;
+            this.pauseClicked = false;
+        }
     }
 
     this.getCurrentTime = function(){
@@ -230,7 +300,7 @@ function Timer(){
 
     this.getElapsedTime = function(){
         this.currentTime = this.getCurrentTime();
-        this.elapsedTime = (this.currentTime - this.startTime) / 1000;
+        this.elapsedTime = (this.currentTime - this.startTime - this.idleTime) / 1000;
         return this.elapsedTime;
     }
 }

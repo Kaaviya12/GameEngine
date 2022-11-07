@@ -1,3 +1,8 @@
+<!--
+    funGame.html
+    This file contains the sample game to show how the game engine from gameEngine.js works
+-->
+
 <!DOCTYPE html>
 <html lang="en-US">
     <head>
@@ -6,89 +11,141 @@
         <script type="text/javascript" src="gameEngine.js"></script>
         <script type="text/javascript">
             var scene;
+            var honeyJars = 0;
+            var background = ["MorningForest.jpg", "NightForest.jpg", "Space.jpg"];
+            var nextBackground = 0;
+            var maxTime = 60;
+            var gameInstructions = "Move the up, down, left, and right arrow keys to collect the honey. Collect as many as you can before the time reaches: " + maxTime + " seconds";
 
             function init(){
                 console.log("Hello, welcome to fun game!");
                 scene = new Scene();
-                bear = new Sprite("bear.png", 100, 100);
+                bear = new Sprite("bear.png", 150, 150);
+                honey = new Sprite("HoneyJar.jpg", 50, 70);
                 timer = new Timer();
+                shiftHoney();
+
                 timeElapsed = document.getElementById("timeElapsed");
-                scene.setSize(1400, 600);
+                resumeButton = document.getElementById("resume");
+
+                scene.setSize(1400, 700);
                 scene.setBorder(5, "solid", "red");
                 scene.setBackgroundColor("purple");
-                scene.setBackgroundImage("NightForest.jpg");
+                scene.setBackgroundImage(background[nextBackground]);
+                nextBackground += 1;
+                intId = setInterval(updateBackground, 10000);
                 timer.start();
                 scene.start();
             }
 
             function update(){
-                timeElapsed.innerHTML = "Time: " + timer.getElapsedTime();
+                timeElapsed.innerHTML = gameInstructions + "<br><br>" +
+                                        "Time: " + timer.getElapsedTime() + "<br> Honey Jars Collected: " + honeyJars;
                 scene.clear();
                 bear.checkKeys();
+                checkCollision();
+                honey.update();
                 bear.update();
+                if(timer.getElapsedTime() >= maxTime){
+                    stop();
+                    resumeButton.disabled = true;
+                }
             }
 
-            function clearBackground(){
-                scene.stop();
-                scene.resetBackground();
+            function shiftHoney(){
+                rand1 = (Math.random() * 1000);
+                rand2 = (Math.random() * 1000);
+                honey.setx(Math.round(rand1));
+                honey.sety(Math.round(rand2));
+
+                newdx = (Math.random() - 0.5) * 20;
+                newdy = (Math.random() - 0.5) * 20;
+
+                honey.setdx(newdx);
+                honey.setdy(newdy);
+            }
+
+            function checkCollision(){
+                if(bear.hasCollided(honey)){
+                    shiftHoney();
+                    honeyJars += 1;
+                }
+            }
+
+            function updateBackground(){
+                scene.setBackgroundImage(background[nextBackground]);
+                nextBackground += 1;
+                if(nextBackground > 2){
+                    nextBackground = 0;
+                }
             }
 
             function stop(){
                 scene.stop();
+                clearInterval(intId);
+                timer.pause();
             }
-
             
             function resume(){
-                scene.resume();
+                if(timer.pauseClicked == true){
+                    scene.resume();
+                    intId = setInterval(updateBackground, 10000);
+                    timer.resume();
+                }
             }
 
-            function bounce(){
+            function restart(){
+                document.location.href = "";
+            }
+
+            function wrapAct(){
+                bear.setBoundAction("WRAP");
+                honey.setBoundAction("WRAP");
+            }
+
+            function bounceAct(){
                 bear.setBoundAction("BOUNCE");
+                honey.setBoundAction("BOUNCE");
             }
 
             function stopAct(){
                 bear.setBoundAction("STOP");
+                honey.setBoundAction("STOP");
             }
-
-            function die(){
-                bear.setBoundAction("DIE");
-            }
-
 
         </script>
     </head>
     <body onload="init()">
         <p id="timeElapsed"></p>
-        <br>
+        
+        <button type="button"
+                id="stop"
+                onclick="stop()">Stop</button>
+
+        <button type="button"
+                id="resume"
+                onclick="resume()">Resume</button>
+
+        <button type="button"
+                id="restart"
+                onclick="restart()">Restart</button>
+
+        <button type="button"
+                id="wrapAct"
+                onclick="wrapAct()">Wrap Action</button>
+
+        <button type="button"
+                id="bounceAct"
+                onclick="bounceAct()">Bounce Action</button>
+
+        <button type="button"
+                id="stopAct"
+                onclick="stopAct()">Stop Action</button>
+        <br>       
         <canvas id="canvas"
                 width="1200"
                 height="600">
                 <p>Your browser does not support the canvas tag</p>
         </canvas>
-        <br>
-        <button type="button"
-                id="clearBackground"
-                onclick="clearBackground()">Clear Background</button>
-        <br>
-        <button type="button"
-                id="stop"
-                onclick="stop()">Stop</button>
-        <br>
-        <button type="button"
-                id="resume"
-                onclick="resume()">Resume</button>
-        <br>
-        <button type="button"
-                id="bounce"
-                onclick="bounce()">Bounce</button>
-        <br>
-        <button type="button"
-                id="stopAct"
-                onclick="stopAct()">StopAction</button>
-        <br>
-        <button type="button"
-                id="die"
-                onclick="die()">Die</button>
-        
     </body>
 </html>
